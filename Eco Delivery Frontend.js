@@ -1,7 +1,7 @@
 // App.js
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import './style.css';
+import 'Eco Delivery Styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Card, Form, Button, Alert, Badge, Navbar, Nav } from 'react-bootstrap';
 import { Truck, Leaf, BarChart2, ShoppingCart } from 'lucide-react';
