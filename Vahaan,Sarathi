@@ -1,0 +1,64 @@
+import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+TOKEN = os.getenv("AUTH_TOKEN")
+
+# VAHAN/02 API URLs
+VAHAN_API_URLS = {
+    "production": "https://www.ulip.dpiit.gov.in/ulip/v1.0.0/VAHAN/02",
+    "staging": "https://www.ulipstaging.dpiit.gov.in/ulip/v1.0.0/VAHAN/02"
+}
+
+# SARATHI/01 API URLs
+SARATHI_API_URLS = {
+    "production": "https://www.ulip.dpiit.gov.in/ulip/v1.0.0/SARATHI/01",
+    "staging": "https://www.ulipstaging.dpiit.gov.in/ulip/v1.0.0/SARATHI/01"
+}
+
+def fetch_vehicle_data(chassis_number, environment="production"):
+    if environment not in VAHAN_API_URLS:
+        raise ValueError("Invalid environment. Use 'production' or 'staging'.")
+    url = VAHAN_API_URLS[environment]
+    headers = {
+        "Authorization": f"Bearer {TOKEN}",
+        "Content-Type": "application/json"
+    }
+    payload = {"chasisnumber": chassis_number}
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()
+
+
+def fetch_driver_data(dl_number, dob, environment="production"):
+    if environment not in SARATHI_API_URLS:
+        raise ValueError("Invalid environment. Use 'production' or 'staging'.")
+    url = SARATHI_API_URLS[environment]
+    headers = {
+        "Authorization": f"Bearer {TOKEN}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "dlnumber": dl_number,
+        "dob": dob
+    }
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()
+
+
+if __name__ == "__main__":
+    # Fetch vehicle data using VAHAN/02 API
+    chassis_number = "ME4JF509AH7069705"
+    environment = "staging"  # Change to 'production' for live data
+    vehicle_data = fetch_vehicle_data(chassis_number, environment)
+    print("Vehicle Data:")
+    print(vehicle_data)
+
+    # Fetch driver data using SARATHI/01 API
+    dl_number = "GJ04 20120005008"
+    dob = "1987-05-26"
+    driver_data = fetch_driver_data(dl_number, dob, environment)
+    print("\nDriver Data:")
+    print(driver_data)
