@@ -1,0 +1,105 @@
+import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Authentication token
+TOKEN = os.getenv("AUTH_TOKEN")
+
+# Base URLs for Production and Staging
+BASE_URLS = {
+    "production": "https://www.ulip.dpiit.gov.in/ulip/v1.0.0",
+    "staging": "https://www.ulipstaging.dpiit.gov.in/ulip/v1.0.0"
+}
+
+def get_auth_headers():
+    return {
+        "Authorization": f"Bearer {TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+
+def post_request(endpoint, payload, environment="production"):
+    if environment not in BASE_URLS:
+        raise ValueError("Invalid environment. Use 'production' or 'staging'.")
+    url = f"{BASE_URLS[environment]}{endpoint}"
+    headers = get_auth_headers()
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()
+
+# CARBON/01 API: Calculate emissions based on distance, weight, and trip count
+def calculate_emissions_rail(distance, weight, trip_count, environment="production"):
+    payload = {
+        "distance": distance,
+        "weight": weight,
+        "tripCount": trip_count
+    }
+    return post_request("/CARBON/01", payload, environment)
+
+# CARBON/02 API: Calculate emissions based on distance, vehicle type, fuel type, and trips
+def calculate_emissions_vehicle(distance, vehicle_type, fuel_type, no_of_trips, environment="production"):
+    payload = {
+        "distance": distance,
+        "vehicleType": vehicle_type,
+        "fuelType": fuel_type,
+        "noOfTrips": no_of_trips
+    }
+    return post_request("/CARBON/02", payload, environment)
+
+# CARBON/03 API: Calculate emissions based on distance, weight, and trip count
+def calculate_emissions_commercial(distance, weight, no_of_trips, environment="production"):
+    payload = {
+        "distance": distance,
+        "weight": weight,
+        "noOfTrips": no_of_trips
+    }
+    return post_request("/CARBON/03", payload, environment)
+
+# CARBON/04 API: Calculate emissions based on distance, vessel type, vessel size, and trips
+def calculate_emissions_vessel(distance, vessel_type, vessel_size, no_of_trips, environment="production"):
+    payload = {
+        "distance": distance,
+        "vesselType": vessel_type,
+        "vesselSize": vessel_size,
+        "noOfTrips": no_of_trips
+    }
+    return post_request("/CARBON/04", payload, environment)
+
+# Example usage
+if __name__ == "__main__":
+    # Replace the following with your test data
+    environment = "staging"  # Use 'production' for live environment
+
+    # CARBON/01 Example
+    print("CARBON/01 Example:")
+    result_rail = calculate_emissions_rail(182.3, 218.6, 1, environment)
+    print(result_rail)
+
+    # CARBON/02 Example
+    print("\nCARBON/02 Example:")
+    result_vehicle = calculate_emissions_vehicle(
+        1822.3,
+        "Light Commercial Vehicles - Rigid Trucks",
+        "Diesel",
+        1,
+        environment
+    )
+    print(result_vehicle)
+
+    # CARBON/03 Example
+    print("\nCARBON/03 Example:")
+    result_commercial = calculate_emissions_commercial(182.3, 218.6, 1, environment)
+    print(result_commercial)
+
+    # CARBON/04 Example
+    print("\nCARBON/04 Example:")
+    result_vessel = calculate_emissions_vessel(
+        1822.3,
+        "Products tanker",
+        "20,000–59,999 dwt",
+        1,
+        environment
+    )
+    print(result_vessel)
